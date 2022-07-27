@@ -1,7 +1,0 @@
-The links for the checkpoints for different models is listed below.
-
-
-| Model File Name  | Download Link |
-| ---------------- | ------------- |
-| model_submit.py  | [download](https://drive.google.com/uc?export=download&id=11pqbqLtmcYgmGN5qRNbdmIFCSItHJjj_)  |
-
