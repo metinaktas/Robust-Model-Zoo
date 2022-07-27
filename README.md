@@ -5,7 +5,7 @@ This repository includes various adversarially robust model checkpoints and thei
 The robustness metrics for [CIFAR-10 dataset](https://www.cs.toronto.edu/~kriz/cifar.html) are measured by using [AutoAttack](https://github.com/fra31/auto-attack) repository.
 
 
-The links for the checkpoints for different models is listed below.
+The links for the checkpoints for different models are listed below.
 
 
 | Model File Name  | Download Link |
