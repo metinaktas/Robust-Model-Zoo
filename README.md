@@ -11,3 +11,11 @@ The links for the checkpoints for different models are listed below.
 | Model File Name  | Download Link |
 | ---------------- | ------------- |
 | [model_submit.py](https://github.com/metinaktas/Robust-Model-Zoo/blob/main/CIFAR-10/Models/tf1/model_submit.py)  | [download](https://drive.google.com/uc?export=download&id=11pqbqLtmcYgmGN5qRNbdmIFCSItHJjj_)  |
+
+### Results
+
+The robust accuracy values for various models are listed below.
+
+| Model File Name  | Clean Accuracy | Robust Accuracy |
+| ---------------- | ------------- | ------------- |
+| [model_submit.py](https://github.com/metinaktas/Robust-Model-Zoo/blob/main/CIFAR-10/Models/tf1/model_submit.py)  | XXX  | YYY  |
