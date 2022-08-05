@@ -5,7 +5,7 @@ import tensorflow as tf
 class Model(object):
   """ResNet model."""
 
-  def __init__(self, mode,x_input,y_input,batch_size=32,filter_size=3,class_num=10,activation='tanh',batch_normalization_active=False,skip_connection_active=False,residual_sizes=5,quantize_active=True):
+  def __init__(self, mode,x_input,y_input,quantize_active=True):
     """ResNet constructor.
 
     Args:
@@ -14,15 +14,14 @@ class Model(object):
     self.mode = mode
     self.x_input = x_input
     self.y_input = y_input
-    self.batch_size = batch_size
-    self.filter_size = filter_size
-    self.class_num = class_num
-    self.activation = activation
-    self.batch_normalization_active = batch_normalization_active
-    self.skip_connection_active = skip_connection_active
-    self.residual_sizes = residual_sizes
+    self.filter_size = 3
+    self.class_num = 10
+    self.activation = "swish"
+    self.batch_normalization_active = True
+    self.skip_connection_active = True
+    self.residual_sizes = 2
     self.quantize_active = quantize_active
-
+    
     self._build_model()
 
   def _stride_arr(self, stride):
@@ -35,62 +34,69 @@ class Model(object):
     step_num = 10    
     global_max_var = None
     alpha = 100000000.0
-    batch_size = 32
     with tf.compat.v1.variable_scope('input',reuse=tf.compat.v1.AUTO_REUSE):
       x = self.x_input
 
-    # LAYER-1
+    # LAYER-1 BLOCK-1
     in_filter = 3
-    out_filter = 32*2
+    out_filter = 32
     x = self.block_1(x,in_filter,out_filter,"block_1_layer_1",num=1)
-    # DECODER-1
+    # LAYER-1 BLOCK-2
     x = self.block_2(x,step_num,alpha,out_filter, in_filter,"block_2_layer_1")
-    # LAYER-1 (Repeat)
+    # LAYER-1 BLOCK-3
     x = self.block_3(x,in_filter,out_filter,"block_3_layer_1",num=1)
+    if self.quantize_active == True:
+      x = quantize(x,step_num,None,scale_active=True,limit_active=True,q=1.0,alpha=alpha)
 
     # STRIDE-1
-    in_filter = 32*2
-    out_filter = 64*2
+    in_filter = 32
+    out_filter = 64
     x = self.block_4(x,in_filter,out_filter,'stride_1')
 
-    in_filter = 64*2
-    out_filter = 64*2
+    in_filter = 64
+    out_filter = 64
     for i in range(self.residual_sizes):
-      # LAYER-2
+      # LAYER-2 BLOCK-1
       x = self.block_1(x,in_filter,out_filter,"block_1_layer_2_%d"%i,num=1)
-      # DECODER-2
+      # LAYER-2 BLOCK-2
       x = self.block_2(x,step_num,alpha,out_filter,in_filter,"block_2_layer_2_%d"%i)
-      # LAYER-2 (Repeat)
+      # LAYER-2 BLOCK-3
       x = self.block_3(x,in_filter,out_filter,"block_3_layer_2_%d"%i,num=1)
+      if self.quantize_active == True:
+        x = quantize(x,step_num,None,scale_active=True,limit_active=True,q=1.0,alpha=alpha)
 
     # STRIDE-2
-    in_filter = 64*2
-    out_filter = 128*2
+    in_filter = 64
+    out_filter = 128
     x = self.block_4(x,in_filter,out_filter,'stride_2')
 
-    # LAYER-3
-    in_filter = 128*2
-    out_filter = 128*2
+    # LAYER-3 BLOCK-1
+    in_filter = 128
+    out_filter = 128
     x = self.block_1(x,in_filter,out_filter,"block_1_layer_3_%d"%i,num=1)
-    # DECODER-3
+    # LAYER-3 BLOCK-2
     x = self.block_2(x,step_num,alpha,out_filter,in_filter,"block_2_layer_3_%d"%i)
-    # LAYER-3 (Repeat)
+    # LAYER-3 BLOCK-3
     x = self.block_3(x,in_filter,out_filter,"block_3_layer_3_%d"%i,num=1)
+    if self.quantize_active == True:
+      x = quantize(x,step_num,None,scale_active=True,limit_active=True,q=1.0,alpha=alpha)
 
     # STRIDE-3
-    in_filter = 128*2
-    out_filter = 256*2
+    in_filter = 128
+    out_filter = 256
     x = self.block_4(x,in_filter,out_filter,'stride_3')
 
-    in_filter = 256*2
-    out_filter = 256*2
+    in_filter = 256
+    out_filter = 256
     for i in range(self.residual_sizes):
-      # LAYER-4
+      # LAYER-4 BLOCK-1
       x = self.block_1(x,in_filter,out_filter,"block_1_layer_4_%d"%i,num=1)
-      # DECODER-4
+      # LAYER-4 BLOCK-2
       x = self.block_2(x,step_num,alpha,out_filter,in_filter,"block_2_layer_4_%d"%i)
-      # LAYER-4 (Repeat)
+      # LAYER-4 BLOCK-3
       x = self.block_3(x,in_filter,out_filter,"block_3_layer_4_%d"%i,num=1)
+      if self.quantize_active == True:
+        x = quantize(x,step_num,None,scale_active=True,limit_active=True,q=1.0,alpha=alpha)
 
     with tf.compat.v1.variable_scope('unit_last',reuse=tf.compat.v1.AUTO_REUSE):
       x = self._batch_norm('final_bn', x)
@@ -146,7 +152,7 @@ class Model(object):
       with tf.compat.v1.name_scope(name):
         with tf.compat.v1.variable_scope('BN',reuse=tf.compat.v1.AUTO_REUSE):
           shape = x.get_shape().as_list()
-          mean_1,variance_1 = tf.nn.moments(x[0:self.batch_size,:,: :], axes=[0,1,2],keepdims=True,name="moments")
+          mean_1,variance_1 = tf.nn.moments(x, axes=[0,1,2],keepdims=True,name="moments")
           x = (x - mean_1)/tf.sqrt(variance_1+1e-9)
           dn_beta = tf.compat.v1.get_variable('DN_Mean', [1, 1, 1, shape[3]],tf.float32, initializer=tf.compat.v1.keras.initializers.Constant(value=0, dtype=tf.float32))
           dn_scale = tf.compat.v1.get_variable('DN_Variance', [1, 1, 1, shape[3]],tf.float32, initializer=tf.compat.v1.keras.initializers.Constant(value=1, dtype=tf.float32))
@@ -275,4 +281,3 @@ def quantize(var,step_num,global_max_var,scale_active=True,limit_active=True,q=1
         quantized_var = round(var,step_length,alpha)
         
     return quantized_var
-
