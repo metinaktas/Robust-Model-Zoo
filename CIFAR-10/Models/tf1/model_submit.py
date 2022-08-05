@@ -45,8 +45,6 @@ class Model(object):
     x = self.block_2(x,step_num,alpha,out_filter, in_filter,"block_2_layer_1")
     # LAYER-1 BLOCK-3
     x = self.block_3(x,in_filter,out_filter,"block_3_layer_1",num=1)
-    if self.quantize_active == True:
-      x = quantize(x,step_num,None,scale_active=True,limit_active=True,q=1.0,alpha=alpha)
 
     # STRIDE-1
     in_filter = 32
@@ -62,8 +60,6 @@ class Model(object):
       x = self.block_2(x,step_num,alpha,out_filter,in_filter,"block_2_layer_2_%d"%i)
       # LAYER-2 BLOCK-3
       x = self.block_3(x,in_filter,out_filter,"block_3_layer_2_%d"%i,num=1)
-      if self.quantize_active == True:
-        x = quantize(x,step_num,None,scale_active=True,limit_active=True,q=1.0,alpha=alpha)
 
     # STRIDE-2
     in_filter = 64
@@ -78,8 +74,6 @@ class Model(object):
     x = self.block_2(x,step_num,alpha,out_filter,in_filter,"block_2_layer_3_%d"%i)
     # LAYER-3 BLOCK-3
     x = self.block_3(x,in_filter,out_filter,"block_3_layer_3_%d"%i,num=1)
-    if self.quantize_active == True:
-      x = quantize(x,step_num,None,scale_active=True,limit_active=True,q=1.0,alpha=alpha)
 
     # STRIDE-3
     in_filter = 128
@@ -95,8 +89,6 @@ class Model(object):
       x = self.block_2(x,step_num,alpha,out_filter,in_filter,"block_2_layer_4_%d"%i)
       # LAYER-4 BLOCK-3
       x = self.block_3(x,in_filter,out_filter,"block_3_layer_4_%d"%i,num=1)
-      if self.quantize_active == True:
-        x = quantize(x,step_num,None,scale_active=True,limit_active=True,q=1.0,alpha=alpha)
 
     with tf.compat.v1.variable_scope('unit_last',reuse=tf.compat.v1.AUTO_REUSE):
       x = self._batch_norm('final_bn', x)
