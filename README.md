@@ -8,9 +8,9 @@ The robustness metrics for [CIFAR-10 dataset](https://www.cs.toronto.edu/~kriz/c
 The links for the checkpoints for different models are listed below.
 
 
-| Model File Name  | Checkpoint |
-| ---------------- | ------------- |
-| [model_1](https://github.com/metinaktas/Robust-Model-Zoo/blob/main/CIFAR-10/Models/tf1/model_1/model.py)  | [download](https://drive.google.com/uc?export=download&id=16PLzHqErmNdPHexlPfZ8ccxeIaqWOMTt) |
+| Model File Name  | Checkpoint | Complexity |
+| ---------------- | ------------- | ------------- |
+| [model_1](https://github.com/metinaktas/Robust-Model-Zoo/blob/main/CIFAR-10/Models/tf1/model_1/model.py)  | [download](https://drive.google.com/uc?export=download&id=16PLzHqErmNdPHexlPfZ8ccxeIaqWOMTt) | 176 MB |
 
 ### Results
 
