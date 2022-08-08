@@ -20,4 +20,4 @@ The proposed models in this repository contain "quantization" blocks for realizi
 
 | Model File Name  | Clean Accuracy | Robust Accuracy without BPDA| Robust Accuracy with BPDA|
 | ---------------- | ------------- | ------------- | ------------- |
-| [model_submit.py](https://github.com/metinaktas/Robust-Model-Zoo/blob/main/CIFAR-10/Models/tf1/model_submit.py)  | XXX  | YYY  | ZZZ  |
+| [model_submit.py](https://github.com/metinaktas/Robust-Model-Zoo/blob/main/CIFAR-10/Models/tf1/model_submit.py)  | 77.10  | 62.20  | ZZZ  |
