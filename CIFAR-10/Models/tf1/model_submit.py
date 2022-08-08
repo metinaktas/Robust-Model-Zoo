@@ -5,7 +5,7 @@ import tensorflow as tf
 class Model(object):
   """ResNet model."""
 
-  def __init__(self, mode,x_input,y_input,quantize_active=True):
+  def __init__(self, mode,x_input,y_input,quantize_active=True,alpha=100000000.0):
     """ResNet constructor.
 
     Args:
@@ -21,6 +21,7 @@ class Model(object):
     self.skip_connection_active = True
     self.residual_sizes = 2
     self.quantize_active = quantize_active
+    self.alpha = alpha
     
     self._build_model()
 
@@ -33,62 +34,69 @@ class Model(object):
     """Build the core model within the graph."""
     step_num = 10    
     global_max_var = None
-    alpha = 100000000.0
     with tf.compat.v1.variable_scope('input',reuse=tf.compat.v1.AUTO_REUSE):
       x = self.x_input
 
     # LAYER-1 BLOCK-1
     in_filter = 3
-    out_filter = 32
+    out_filter = 48
     x = self.block_1(x,in_filter,out_filter,"block_1_layer_1",num=1)
     # LAYER-1 BLOCK-2
-    x = self.block_2(x,step_num,alpha,out_filter, in_filter,"block_2_layer_1")
+    x = self.block_2(x,step_num,self.alpha,out_filter, in_filter,"block_2_layer_1")
     # LAYER-1 BLOCK-3
     x = self.block_3(x,in_filter,out_filter,"block_3_layer_1",num=1)
+    if self.quantize_active == True:
+      x = quantize(x,step_num,None,scale_active=True,limit_active=True,q=1.0,alpha=self.alpha)
 
     # STRIDE-1
-    in_filter = 32
-    out_filter = 64
+    in_filter = 48
+    out_filter = 96
     x = self.block_4(x,in_filter,out_filter,'stride_1')
 
-    in_filter = 64
-    out_filter = 64
+    in_filter = 96
+    out_filter = 96
     for i in range(self.residual_sizes):
       # LAYER-2 BLOCK-1
       x = self.block_1(x,in_filter,out_filter,"block_1_layer_2_%d"%i,num=1)
       # LAYER-2 BLOCK-2
-      x = self.block_2(x,step_num,alpha,out_filter,in_filter,"block_2_layer_2_%d"%i)
+      x = self.block_2(x,step_num,self.alpha,out_filter,in_filter,"block_2_layer_2_%d"%i)
       # LAYER-2 BLOCK-3
       x = self.block_3(x,in_filter,out_filter,"block_3_layer_2_%d"%i,num=1)
+      if self.quantize_active == True:
+        x = quantize(x,step_num,None,scale_active=True,limit_active=True,q=1.0,alpha=self.alpha)
 
     # STRIDE-2
-    in_filter = 64
-    out_filter = 128
+    in_filter = 96
+    out_filter = 192
     x = self.block_4(x,in_filter,out_filter,'stride_2')
 
     # LAYER-3 BLOCK-1
-    in_filter = 128
-    out_filter = 128
+    in_filter = 192
+    out_filter = 192
     x = self.block_1(x,in_filter,out_filter,"block_1_layer_3_%d"%i,num=1)
     # LAYER-3 BLOCK-2
-    x = self.block_2(x,step_num,alpha,out_filter,in_filter,"block_2_layer_3_%d"%i)
+    x = self.block_2(x,step_num,self.alpha,out_filter,in_filter,"block_2_layer_3_%d"%i)
     # LAYER-3 BLOCK-3
     x = self.block_3(x,in_filter,out_filter,"block_3_layer_3_%d"%i,num=1)
+    if self.quantize_active == True:
+      x = quantize(x,step_num,None,scale_active=True,limit_active=True,q=1.0,alpha=self.alpha)
 
     # STRIDE-3
-    in_filter = 128
-    out_filter = 256
+    in_filter = 192
+    out_filter = 384
     x = self.block_4(x,in_filter,out_filter,'stride_3')
 
-    in_filter = 256
-    out_filter = 256
+    in_filter = 384
+    out_filter = 384
     for i in range(self.residual_sizes):
       # LAYER-4 BLOCK-1
       x = self.block_1(x,in_filter,out_filter,"block_1_layer_4_%d"%i,num=1)
       # LAYER-4 BLOCK-2
-      x = self.block_2(x,step_num,alpha,out_filter,in_filter,"block_2_layer_4_%d"%i)
+      x = self.block_2(x,step_num,self.alpha,out_filter,in_filter,"block_2_layer_4_%d"%i)
       # LAYER-4 BLOCK-3
       x = self.block_3(x,in_filter,out_filter,"block_3_layer_4_%d"%i,num=1)
+      if self.quantize_active == True:
+        x = quantize(x,step_num,None,scale_active=True,limit_active=True,q=1.0,alpha=self.alpha)
 
     with tf.compat.v1.variable_scope('unit_last',reuse=tf.compat.v1.AUTO_REUSE):
       x = self._batch_norm('final_bn', x)
