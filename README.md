@@ -11,6 +11,7 @@ The links for the checkpoints for different models are listed below.
 | Model File Name  | Checkpoint | Complexity |
 | ---------------- | ------------- | ------------- |
 | [model_1](https://github.com/metinaktas/Robust-Model-Zoo/blob/main/CIFAR-10/Models/tf1/model_1/model.py)  | [download](https://drive.google.com/uc?export=download&id=16PLzHqErmNdPHexlPfZ8ccxeIaqWOMTt) | 176 MB |
+| [model_2](https://github.com/metinaktas/Robust-Model-Zoo/blob/main/CIFAR-10/Models/tf1/model_2/model.py) | [download](https://drive.google.com/uc?export=download&id=1s76yDCBK86KN_cxjJM87i4qn897arAY_) | 104 MB |
 
 ### Results
 
@@ -21,3 +22,4 @@ The proposed models in this repository contain "quantization" blocks for realizi
 | Model File Name  | Clean Accuracy | Robust Accuracy without BPDA| Robust Accuracy with BPDA|
 | ---------------- | ------------- | ------------- | ------------- |
 | [model_1](https://github.com/metinaktas/Robust-Model-Zoo/blob/main/CIFAR-10/Models/tf1/model_1/model.py)  | 77.10  | 62.20  | 53.30  |
+| [model_2](https://github.com/metinaktas/Robust-Model-Zoo/blob/main/CIFAR-10/Models/tf1/model_2/model.py)  | 69.30  | 49.70  | 43.10  |
